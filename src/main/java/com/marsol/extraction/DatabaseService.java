@@ -27,8 +27,7 @@ public class DatabaseService {
     public List<Map<String,Object>> getEnabledScales(){
         List<Map<String,Object>> scales = new ArrayList<>();
         String query = "SELECT * FROM zbalanza WHERE " +
-                "zbalanza.estado = 0 " +
-                "AND zbalanza.balid = 20";
+                "zbalanza.estado = 0";
 
 
         try(Connection conn = dataSource.getConnection();

@@ -14,6 +14,8 @@ public class Scale {
     private final int puerto;
     private final int masivo;
     private final int estado;
+    private String typeLastUpdate;
+    private Timestamp lastUpdate;
 
     // Constructor privado para que sólo se pueda crear a través del Builder
     public Scale(Builder builder) {
@@ -28,6 +30,8 @@ public class Scale {
         this.puerto = builder.puerto;
         this.masivo = builder.masivo;
         this.estado = builder.estado;
+        this.typeLastUpdate = builder.typeLastUpdate;
+        this.lastUpdate = builder.lastUpdate;
     }
 
     // Getters
@@ -75,6 +79,15 @@ public class Scale {
         return estado;
     }
 
+    public String getTypeLastUpdate() {return typeLastUpdate;}
+
+    public Timestamp getLastUpdate() {return lastUpdate;}
+
+    //Setters
+    public void setTypeLastUpdate(String typeLastUpdate) {this.typeLastUpdate = typeLastUpdate;}
+
+    public void setLastUpdate(Timestamp lastUpdate) {this.lastUpdate = lastUpdate;}
+
     // Clase estática interna Builder
     public static class Builder {
         private int balId;
@@ -88,6 +101,8 @@ public class Scale {
         private int puerto;
         private int masivo;
         private int estado;
+        private String typeLastUpdate;
+        private Timestamp lastUpdate;
 
         public Builder() {
             // Constructor por defecto del builder
@@ -145,6 +160,16 @@ public class Scale {
 
         public Builder estado(int estado) {
             this.estado = estado;
+            return this;
+        }
+
+        public Builder typeLastUpdate(String typeLastUpdate) {
+            this.typeLastUpdate = typeLastUpdate;
+            return this;
+        }
+
+        public Builder lastUpdate(Timestamp lastUpdate) {
+            this.lastUpdate = lastUpdate;
             return this;
         }
 

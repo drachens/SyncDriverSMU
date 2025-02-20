@@ -6,6 +6,7 @@ import java.util.List;
 
 public interface ScaleRepository {
     List<Scale> findEnabledScales();
-    List<Scale> findCargaMaestra();
-    void updateLastupdateScale(Scale scale);
+    void setUpdateLastupdateScale(Scale scale, boolean isSuccess, String message);
+
+    void setUpdateCargaMaestra(Scale scale);
 }

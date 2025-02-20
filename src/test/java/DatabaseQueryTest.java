@@ -2,39 +2,44 @@ import com.marsol.Main;
 import com.marsol.config.DatabaseConfig;
 import com.marsol.extraction.DatabaseService;
 import com.marsol.model.Article;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Import;
+import org.springframework.stereotype.Component;
+import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestPropertySource;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 
-import java.lang.reflect.Field;
 import javax.sql.DataSource;
+import java.lang.reflect.Field;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-@SpringBootTest(classes = Main.class)
-@Import(DatabaseConfig.class)
+//@SpringBootTest(classes = Main.class)
+@ExtendWith(SpringExtension.class)
+@ContextConfiguration(classes = DatabaseConfig.class)
+@Import({DatabaseConfig.class})
 @TestPropertySource(locations = "classpath:application.properties")
 public class DatabaseQueryTest {
 
     @Autowired
-    DataSource ds;
-
+    private DataSource ds;
 
     @Test
     public void test() throws SQLException {
+
         DatabaseService db = new DatabaseService(ds);
         List<Map<String,Object>> test = db.getEnabledScales();
-
         for(Map<String,Object> map : test){
-            System.out.println("Nuevo Articulo:");
-            for(Map.Entry<String,Object> entry : map.entrySet()){
-                System.out.println(entry.getKey() + ": " + entry.getValue());
+            for(String i : map.keySet()){
+                System.out.println(i+" : "+map.get(i));
             }
-            System.out.println("-----------------------------------------");
+            System.out.println("------------------");
         }
     }
 
