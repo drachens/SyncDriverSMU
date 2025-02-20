@@ -13,22 +13,22 @@ import javax.sql.DataSource;
 @Configuration
 public class DatabaseConfig {
 
-    @Value("${DBTYPE}")
+    @Value("${DB_TYPE}")
     private String dbType;
 
     @Value("${INFORMIX_SERVER}")
     private String informixServer;
 
-    @Value("${DBUSER}")
+    @Value("${DB_USER}")
     private String dbUser;
 
-    @Value("${DBPASSWORD}")
+    @Value("${DB_PASSWORD}")
     private String dbPassword;
 
     @Value("${SERVERNAME}")
     private String serverName;
 
-    @Value("${PORTNUMBER}")
+    @Value("${PORT_NUMBER}")
     private String portNumber;
 
     @Value("${SID}")

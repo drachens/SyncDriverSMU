@@ -88,6 +88,25 @@ public class Scale {
     public void setLastUpdate(Timestamp lastUpdate) {this.lastUpdate = lastUpdate;}
     public void setIp(String ip) {this.ip = ip;}
 
+    @Override
+    public String toString() {
+        return "Scale{" +
+                "balId=" + balId +
+                ", updated=" + updated +
+                ", nombre='" + nombre + '\'' +
+                ", etiqueta_u=" + etiqueta_u +
+                ", etiqueta_p=" + etiqueta_p +
+                ", letraPlu=" + letraPlu +
+                ", letraIng=" + letraIng +
+                ", ip='" + ip + '\'' +
+                ", puerto=" + puerto +
+                ", masivo=" + masivo +
+                ", estado=" + estado +
+                ", typeLastUpdate='" + typeLastUpdate + '\'' +
+                ", lastUpdate=" + lastUpdate +
+                '}';
+    }
+
     // Clase estática interna Builder
     public static class Builder {
         private int balId;
@@ -177,4 +196,5 @@ public class Scale {
             return new Scale(this);
         }
     }
+
 }

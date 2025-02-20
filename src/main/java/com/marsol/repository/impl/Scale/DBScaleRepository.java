@@ -7,9 +7,12 @@ import org.slf4j.LoggerFactory;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.sql.DataSource;
 import java.sql.*;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -30,20 +33,25 @@ public class DBScaleRepository implements ScaleRepository {
      * @return Lista de objetos Scale
      */
     @Override
+    @Transactional(readOnly = true)
     public List<Scale> findEnabledScales() {
-        List<Scale> scales = new ArrayList<>();
-        String query = "SELECT * FROM zbalanza WHERE estado = 0 AND port = 7000";
+        String query = "SELECT * FROM zbalanza WHERE estado = 0";
         try{
+            System.out.println("Antes de ejecutar la consulta...");
             // Ejecutamos la consulta y mapeamos cada fila a un objeto Scale
-            return jdbcTemplate.query(query, (rs, rowNum) -> new Scale.Builder()
+            List<Scale> scales = jdbcTemplate.query(query, (rs, rowNum) -> new Scale.Builder()
                     .balId(rs.getInt("balid"))
-                    .nombre(rs.getString("nombre"))
+                    .nombre(rs.getString("nombre").trim())
                     .updated(rs.getTimestamp("updated"))
-                    .ip(rs.getString("ip"))
+                    .ip(rs.getString("ip").trim())
                     .puerto(rs.getInt("puerto"))
                     .masivo(rs.getInt("masivo"))
                     .estado(rs.getInt("estado"))
+                    .typeLastUpdate("")
+                    .lastUpdate(Timestamp.valueOf(LocalDateTime.of(0,1,1,0,0,0)))
                     .build());
+            System.out.println("Despues de ejecutar la consukta...");
+            return scales;
         } catch (Exception e) {
             logger.error("Error obteniendo balanzas disponibles: {}", e.getMessage());
             return Collections.emptyList();

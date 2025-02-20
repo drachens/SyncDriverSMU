@@ -51,7 +51,7 @@ public class ServiceController implements CommandLineRunner {
 
     @Override
     public void run(String... args) throws Exception {
-        load();
+        //load();
     }
 
     public void load(){
