@@ -1,6 +1,5 @@
 package com.marsol.extraction;
 
-import com.marsol.model.Article;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -10,7 +9,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 @Service
 public class DatabaseService {
@@ -162,7 +160,7 @@ public class DatabaseService {
                 "WHERE a.eliminated = 0";
         return exectuteGetIdQuerys(query, idBal);
     }
-
+/*
     public List<Article> getPluItems(List<String> ids){
         List<Article> articles = new ArrayList<>();
         String placeholder = ids.stream()
@@ -213,6 +211,8 @@ public class DatabaseService {
         return articles;
     }
 
+
+ */
     public List<Map<String,Object>> getAllArticles(int idBal){
         List<Map<String,Object>> articles = new ArrayList<>();
         String query = "SELECT " +

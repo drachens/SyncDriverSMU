@@ -24,4 +24,11 @@
     <logger name="org.springframework" level="INFO" />
     <logger name="org.hibernate" level="INFO" />
     <logger name="org.apache" level="INFO" />
+    <logger name="javax.management" level="INFO" additivity="false">
+        <appender-ref ref="STDOUT"/>
+    </logger>
+
+    <logger name="com.sun.management" level="INFO" additivity="false">
+        <appender-ref ref="STDOUT"/>
+    </logger>
 </configuration>

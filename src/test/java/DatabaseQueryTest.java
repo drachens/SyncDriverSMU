@@ -1,14 +1,10 @@
-import com.marsol.Main;
 import com.marsol.config.DatabaseConfig;
 import com.marsol.extraction.DatabaseService;
-import com.marsol.model.Article;
-import org.junit.jupiter.api.BeforeEach;
+import com.marsol.model.ArticleDTO;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Import;
-import org.springframework.stereotype.Component;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
@@ -75,15 +71,15 @@ public class DatabaseQueryTest {
         ids.add("97678");
         ids.add("97679");
         ids.add("97682");
-        List<Article> test = db.getPluItems(ids);
+        List<ArticleDTO> test = null;//db.getPluItems(ids);
 
-        for(Article article : test){
+        for(ArticleDTO articleDTO : test){
             System.out.println("Nuevo Articulo:");
-            for (Field field : article.getClass().getDeclaredFields()) {
+            for (Field field : articleDTO.getClass().getDeclaredFields()) {
                 field.setAccessible(true); // Permite acceder a atributos privados
                 try {
                     String name = field.getName(); // Nombre del atributo
-                    Object value = field.get(article); // Valor del atributo
+                    Object value = field.get(articleDTO); // Valor del atributo
                     System.out.println(name + ": " + value);
                 } catch (IllegalAccessException e) {
                     e.printStackTrace();

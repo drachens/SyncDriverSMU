@@ -10,7 +10,7 @@ public class Scale {
     private final int etiqueta_p;
     private final int letraPlu;
     private final int letraIng;
-    private final String ip;
+    private String ip;
     private final int puerto;
     private final int masivo;
     private final int estado;
@@ -85,8 +85,8 @@ public class Scale {
 
     //Setters
     public void setTypeLastUpdate(String typeLastUpdate) {this.typeLastUpdate = typeLastUpdate;}
-
     public void setLastUpdate(Timestamp lastUpdate) {this.lastUpdate = lastUpdate;}
+    public void setIp(String ip) {this.ip = ip;}
 
     // Clase estática interna Builder
     public static class Builder {

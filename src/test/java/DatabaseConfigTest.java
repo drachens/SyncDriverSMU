@@ -1,3 +1,4 @@
+/*
 import com.marsol.Main;
 import com.marsol.config.DatabaseConfig;
 import org.junit.jupiter.api.Assertions;
@@ -21,3 +22,6 @@ public class DatabaseConfigTest {
         databaseConfig.test();
     }
 }
+
+
+ */

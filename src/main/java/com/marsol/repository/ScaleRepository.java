@@ -8,5 +8,5 @@ public interface ScaleRepository {
     List<Scale> findEnabledScales();
     void setUpdateLastupdateScale(Scale scale, boolean isSuccess, String message);
 
-    void setUpdateCargaMaestra(Scale scale);
+    void disabledMassive(Scale scale);
 }

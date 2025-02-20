@@ -1,8 +1,7 @@
 package com.marsol.transform;
 
 import com.marsol.controller.PluController;
-import com.marsol.controller.ServiceController;
-import com.marsol.model.Article;
+import com.marsol.model.ArticleDTO;
 import com.marsol.model.PLU;
 import com.marsol.model.Scale;
 import com.marsol.utils.HeadersFilesHPRT;
@@ -16,7 +15,6 @@ import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 @Component
 public class TransformPlu {
@@ -34,18 +32,18 @@ public class TransformPlu {
     }
 
     public List<PLU> getPluTransformed(Scale scale){
-        List<Article> articles = m_PluController.getPluArticleInfo(scale);
+        List<ArticleDTO> articleDTOS = null;//m_PluController.getPluArticleInfo(scale);
         List<PLU> plus = new ArrayList<PLU>();
         int idBal = scale.getBalId();
-        for(Article article : articles){
+        for(ArticleDTO articleDTO : articleDTOS){
             PLU plu = new PLU();
-            String pluFill = getFillPLU(article.getId());
+            String pluFill = getFillPLU(articleDTO.getId());
 
-            plu.setLFCode(Integer.parseInt(article.getId()));
-            plu.setName1(article.getDescription());
-            plu.setUnitPrice(article.getPrice());
+            plu.setLFCode(Integer.parseInt(articleDTO.getId()));
+            plu.setName1(articleDTO.getDescription());
+            plu.setUnitPrice(articleDTO.getPrice());
 
-            switch (article.getMeasure()){
+            switch (articleDTO.getMeasure()){
                 case 1: //Si es 1 es por unitario
                     plu.setWeightUnit(8);
                     plu.setBarcodeType1(101);

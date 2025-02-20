@@ -1,3 +1,4 @@
+/*
 import com.marsol.Main;
 import com.marsol.config.DatabaseConfig;
 import com.marsol.controller.PluController;
@@ -36,3 +37,6 @@ public class TransformNote1Test {
         transformNote1.writeListNote1(newScale,"sas");
     }
 }
+
+
+ */

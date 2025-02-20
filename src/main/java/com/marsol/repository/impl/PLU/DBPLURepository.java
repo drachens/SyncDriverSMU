@@ -1,7 +1,6 @@
 package com.marsol.repository.impl.PLU;
 
-import com.marsol.model.Article;
-import com.marsol.model.PLU;
+import com.marsol.model.ArticleDTO;
 import com.marsol.model.Scale;
 import com.marsol.repository.PLURepository;
 import org.slf4j.Logger;
@@ -11,9 +10,7 @@ import org.springframework.stereotype.Repository;
 import javax.sql.DataSource;
 import java.sql.*;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 
 @Repository
@@ -112,8 +109,8 @@ public class DBPLURepository implements PLURepository {
         return list;
     }
 
-    public List<Article> getListArticles(List<Integer> ids){
-        List<Article> list = new ArrayList<>();
+    public List<ArticleDTO> getListArticles(List<Integer> ids){
+        List<ArticleDTO> list = new ArrayList<>();
         String placeholder = ids.stream()
                 .map(id -> "?")
                 .collect(Collectors.joining(","));
@@ -133,23 +130,18 @@ public class DBPLURepository implements PLURepository {
 
            try(ResultSet rs = preparedStatement.executeQuery()){
                while(rs.next()){
-                   Article article = new Article();
-                   article.setId(rs.getString("plu_id"));
-                   article.setPrice(rs.getInt("plu_price"));
-                   article.setDescription(rs.getString("plu_description"));
-                   article.setMeasure(rs.getInt("plu_measure"));
-                   article.setRessanitaria(rs.getString("plu_ressanitaria"));
-                   article.setConservacion(rs.getString("plu_conservacion"));
-                   article.setDuracion(rs.getInt("plu_duracion"));
-                   article.setTara(rs.getDouble("plu_tara"));
-                   article.setImprimir(rs.getInt("plu_imprimir"));
-                   article.setIdFrigo(rs.getInt("plu_idfrigo"));
-                   article.setFecben(rs.getTimestamp("plu_fecben"));
-                   article.setProcedencia(rs.getString("plu_procedencia"));
-                   article.setFaenado(rs.getString("plu_faenado"));
-                   article.setEmbalaje(rs.getString("plu_embalaje"));
-                   article.setAfeley(rs.getInt("plu_afe_ley"));
-                   list.add(article);
+                   ArticleDTO articleDTO = new ArticleDTO.Builder()
+                           .setDescription(rs.getString("plu"))
+                           .setPrice(rs.getInt("plu_price"))
+                           .setId(rs.getString("plu_id"))
+                           .setConservacion(rs.getString("plu_conservacion"))
+                           .setAfeley(rs.getInt("plu_afe_ley"))
+                           .setMeasure(rs.getInt("plu_measure"))
+                           .setDuracion(rs.getInt("plu_duracion"))
+                           .setTara(rs.getDouble("plu_tara"))
+                           .setImprimir(rs.getInt("plu_imprimir"))
+                           .build();
+                   list.add(articleDTO);
                }
            }
         }catch (SQLException e){

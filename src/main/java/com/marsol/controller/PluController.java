@@ -1,8 +1,7 @@
 package com.marsol.controller;
 
 import com.marsol.extraction.DatabaseService;
-import com.marsol.model.Article;
-import com.marsol.model.PLU;
+import com.marsol.model.ArticleDTO;
 import com.marsol.model.Scale;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -18,9 +17,9 @@ public class PluController {
     public PluController(DatabaseService databaseService) {
         this.databaseService = databaseService;
     }
-
+    /**
     // Función principal: Retorna una lista de información sobre los productos asociados a una balanza.
-    public List<Article> getPluArticleInfo(Scale scale){
+    public List<ArticleDTO> getPluArticleInfo(Scale scale){
         List<String> pluIds = getPluToLoad(scale);
         if(pluIds.isEmpty()){
             System.out.println("No plu loaded");
@@ -28,6 +27,7 @@ public class PluController {
         }
         return databaseService.getPluItems(pluIds);
     }
+     */
 
     // Función: Retorna una lista de IDs de artículos que deben ser eliminados de acuerdo a las condiciones.
     public List<String> getPluToDelete(Scale scale) {
