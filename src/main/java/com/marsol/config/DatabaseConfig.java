@@ -1,17 +1,19 @@
 package com.marsol.config;
 
+import com.zaxxer.hikari.HikariDataSource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.apache.commons.dbcp2.BasicDataSource;
 import org.springframework.jdbc.core.JdbcTemplate;
 
 import javax.sql.DataSource;
 
 @Configuration
 public class DatabaseConfig {
+
+    private static final Logger logger = LoggerFactory.getLogger(DatabaseConfig.class);
 
     @Value("${DB_TYPE}")
     private String dbType;
@@ -34,44 +36,27 @@ public class DatabaseConfig {
     @Value("${SID}")
     private String sid;
 
-    private static final Logger logger = LoggerFactory.getLogger(DatabaseConfig.class);
-
     /**
-     * Configura el DataSource para la conexión a la base de datos Informix.
-     * Se utiliza BasicDataSource de Apache Commons DBCP para la administración del pool de conexiones.
+     * Configura el DataSource para la conexión a Informix usando HikariCP.
      * @return DataSource configurado.
      */
     @Bean
     public DataSource dataSource() {
-        try {
-            BasicDataSource dataSource = new BasicDataSource();
-            dataSource.setDriverClassName("com.informix.jdbc.IfxDriver");
+        HikariDataSource dataSource = new HikariDataSource();
+        String url = String.format("jdbc:informix-sqli://%s:%s/%s:INFORMIXSERVER=%s",
+                serverName, portNumber, sid, informixServer);
 
-            String url = String.format("jdbc:informix-sqli://%s:%s/%s:INFORMIXSERVER=%s",
-                    serverName, portNumber, sid, informixServer);
+        dataSource.setJdbcUrl(url);
+        dataSource.setUsername(dbUser);
+        dataSource.setPassword(dbPassword);
+        dataSource.setDriverClassName("com.informix.jdbc.IfxDriver");
 
-            dataSource.setUrl(url);
-            dataSource.setUsername(dbUser);
-            dataSource.setPassword(dbPassword);
-
-            // Configuración del pool de conexiones
-            dataSource.setInitialSize(5); // Número inicial de conexiones en el pool
-            dataSource.setMaxTotal(20);   // Máximo de conexiones en el pool
-            dataSource.setMaxIdle(10);    // Máximo de conexiones inactivas
-            dataSource.setMinIdle(5);     // Mínimo de conexiones inactivas
-            dataSource.setMaxWaitMillis(10000); // Tiempo máximo de espera para obtener una conexión
-
-            logger.info("Conexión a la base de datos configurada correctamente.");
-            return dataSource;
-        } catch (Exception e) {
-            logger.error("Error al configurar la conexión a la base de datos.", e);
-            throw new RuntimeException("No se pudo configurar la conexión a la base de datos", e);
-        }
+        logger.info("Conectando a base de datos Informix, usando pool de HikariCP.");
+        return dataSource;
     }
 
     /**
      * Configura un JdbcTemplate basado en el DataSource.
-     * JdbcTemplate permite ejecutar consultas SQL de manera eficiente sin manejar conexiones manualmente.
      * @param dataSource Inyectado automáticamente por Spring.
      * @return JdbcTemplate configurado.
      */
@@ -80,17 +65,18 @@ public class DatabaseConfig {
         return new JdbcTemplate(dataSource);
     }
 
-    /**
-     * Método de prueba para imprimir los parámetros de configuración de la base de datos.
-     */
+    /*
+     * Metodo de prueba para imprimir los parámetros de configuración de la base de datos.
+
     public void test() {
-        System.out.println("DBTYPE: " + dbType);
-        System.out.println("INFORMIX_SERVER: " + informixServer);
-        System.out.println("DBUSER: " + dbUser);
-        System.out.println("DBPASSWORD: " + dbPassword);
-        System.out.println("SERVERNAME: " + serverName);
-        System.out.println("PORTNUMBER: " + portNumber);
-        System.out.println("SID: " + sid);
+        logger.info("DB_TYPE: {}", dbType);
+        logger.info("INFORMIX_SERVER: {}", informixServer);
+        logger.info("DB_USER: {}", dbUser);
+        logger.info("DB_PASSWORD: {}", dbPassword);
+        logger.info("SERVERNAME: {}", serverName);
+        logger.info("PORT_NUMBER: {}", portNumber);
+        logger.info("SID: {}", sid);
     }
+     */
 }
 

@@ -1,10 +1,10 @@
 /*
 import com.marsol.Main;
 import com.marsol.config.DatabaseConfig;
-import com.marsol.controller.PluController;
+import com.marsol.domain.service.PluController;
 import com.marsol.extraction.DatabaseService;
-import com.marsol.model.ArticleDTO;
-import com.marsol.model.Scale;
+import com.marsol.application.dto.ArticleDTO;
+import com.marsol.domain.model.Scale;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;

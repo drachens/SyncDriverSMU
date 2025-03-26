@@ -1,11 +1,11 @@
 /*
 import com.marsol.Main;
 import com.marsol.config.DatabaseConfig;
-import com.marsol.controller.PluController;
-import com.marsol.controller.ResSanitariaController;
+import com.marsol.domain.service.PluController;
+import com.marsol.domain.service.ResSanitariaController;
 import com.marsol.extraction.DatabaseService;
-import com.marsol.model.Note;
-import com.marsol.model.Scale;
+import com.marsol.domain.model.Note;
+import com.marsol.domain.model.Scale;
 import com.marsol.transform.TransformNote1;
 import com.marsol.transform.TransformPlu;
 import org.junit.jupiter.api.Test;
