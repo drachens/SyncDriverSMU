@@ -131,12 +131,12 @@ public class PluTransformationService {
     }
 
     private List<PLU> updatePluList(List<PLU> original, List<PLU> update){
-        Map<PLU,PLU> mapPlu = new HashMap<>();
+        Map<Integer,PLU> mapPlu = new HashMap<>();
         for(PLU plu : original){
-            mapPlu.put(plu,plu);
+            mapPlu.put(plu.getLFCode(),plu);
         }
         for(PLU plu:update){
-            mapPlu.put(plu,plu);
+            mapPlu.put(plu.getLFCode(),plu);
         }
         original.clear();
         original.addAll(mapPlu.values());

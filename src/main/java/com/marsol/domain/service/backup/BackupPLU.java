@@ -1,6 +1,7 @@
 package com.marsol.domain.service.backup;
 
 import com.marsol.domain.model.PLU;
+import com.marsol.utils.FileReaderUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -15,41 +16,8 @@ import java.util.function.Function;
 
 
 public class BackupPLU {
-
-
-
-    private static final Logger logger = LoggerFactory.getLogger(BackupPLU.class);
-
-    private static <T> List<T> readFileAndMap(String filename, Function<String[], T> mapper) {
-        List<T> result = new ArrayList<>();
-        try (BufferedReader br = new BufferedReader(new FileReader(filename))) {
-            String line;
-            boolean firstLine = true;
-
-            while ((line = br.readLine()) != null) {
-                if (firstLine) {
-                    firstLine = false;
-                    continue;
-                }
-
-                String[] values = line.split("\t");
-                if (values.length > 0) {
-                    try {
-                        T item = mapper.apply(values);
-                        result.add(item);
-                    } catch (Exception e) {
-                        System.err.println("Error procesando línea: " + e.getMessage());
-                    }
-                }
-            }
-        } catch (IOException e) {
-            throw new RuntimeException("Error leyendo el archivo: " + filename, e);
-        }
-        return result;
-    }
-
     public static List<PLU> extractPLUs(String filename) {
-        return readFileAndMap(filename, values -> {
+        return FileReaderUtil.readFileAndMap(filename, values -> {
             PLU newPLU = new PLU();
             newPLU.setLFCode(Integer.parseInt(values[0]));
             newPLU.setItemCode(values[1]);
@@ -80,7 +48,7 @@ public class BackupPLU {
     }
 
     public static List<Integer> extractLFCode(String filename) {
-        return readFileAndMap(filename, values -> Integer.parseInt(values[0]));
+        return FileReaderUtil.readFileAndMap(filename, values -> Integer.parseInt(values[0]));
     }
 
 }

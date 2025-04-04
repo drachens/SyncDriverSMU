@@ -13,7 +13,9 @@ import org.springframework.stereotype.Service;
 import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Service
 public class Note1TransformationService {
@@ -54,6 +56,22 @@ public class Note1TransformationService {
         writeNote1(notes,String.valueOf(idBal));
     }
 
+    public void reloadAndFilterNote1(List<Note> filteredNotes, List<Note1DTO> updateNotes1, String balId){
+        List<Note> notes = new ArrayList<>();
+        for(Note1DTO note1DTO : updateNotes1){
+            String textoEmbasadoPor = String.join(" ", note1DTO.getEmbalaje().trim(), note1DTO.getNombre().trim());
+            String value = String.join("{$0A}", textoEmbasadoPor, note1DTO.getDireccion().trim(), note1DTO.getResSanitaria().trim());
+            int lfCode = note1DTO.getIdArticle();
+
+            Note note = new Note();
+            note.setLFCode(lfCode);
+            note.setValue(value);
+            notes.add(note);
+        }
+        List<Note> newNotes = updateNote1List(filteredNotes,notes);
+        writeNote1(newNotes,balId);
+    }
+
     private void writeNote1(List<Note> notes, String balId){
         if(notes.isEmpty()){
             logger.info("No hay Nota1 nuevos para la balanza -> {}",balId);
@@ -76,5 +94,18 @@ public class Note1TransformationService {
         }
     }
 
+    private List<Note> updateNote1List(List<Note> original, List<Note> update){
+        Map<Integer, Note> mapNotes = new HashMap<>();
+
+        for(Note note : original){
+            mapNotes.put(note.getLFCode(),note);
+        }
+        for(Note note2 : update){
+            mapNotes.put(note2.getLFCode(),note2);
+        }
+        original.clear();
+        original.addAll(mapNotes.values());
+        return original;
+    }
 
 }
