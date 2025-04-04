@@ -4,7 +4,6 @@ import com.marsol.application.dto.ArticleDTO;
 import com.marsol.domain.handler.*;
 import com.marsol.domain.model.PLU;
 import com.marsol.domain.model.Scale;
-import com.marsol.infrastructure.repository.PluDAO;
 import com.marsol.utils.HeadersFilesHPRT;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -17,7 +16,9 @@ import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Service
 public class PluTransformationService {
@@ -56,7 +57,6 @@ public class PluTransformationService {
         }else{
             articlesDTOS = dataExtractionService.getEnabledArticles(scale);
         }
-        logger.info("{}",articlesDTOS);
         List<PLU> plus = new ArrayList<>();
         for (ArticleDTO articleDTO : articlesDTOS) {
             PLU plu = new PLU();
@@ -80,7 +80,38 @@ public class PluTransformationService {
         writeListPlu(plus,String.valueOf(scale.getBalId()));
     }
 
+    public void reloadAndFilterDataPlu(List<PLU> filteredPlus, List<ArticleDTO> updateArticles, String balId) throws FileNotFoundException {
+        BaseHandler wheightUnitHandler = initializeHandlerChain();
+        BaseHandler datesHandler = initializeDatesHandlerChain();
+        List<PLU> plus = new ArrayList<>();
+        for (ArticleDTO articleDTO : updateArticles) {
+            PLU plu = new PLU();
+            plu.setLFCode(Integer.parseInt(articleDTO.getId()));
+            plu.setName1(articleDTO.getDescription());
+            plu.setName2(articleDTO.getBrand());
+            plu.setName3(articleDTO.getAdditionalDescription());
+            plu.setProducedDateTime(LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd-MM-yy HH:mm:ss")));
+            plu.setUnitPrice(articleDTO.getPrice());
+            plu.setDepartment(1);
+            plu.setLabel1(32);
+            plu.setValidDays(articleDTO.getDuracion());
+            //plu.setTareWeight((int) articleDTO.getTara());
+            wheightUnitHandler.handle(plu,articleDTO);
+            plu.setDiscountStartDateTime("");
+            plu.setDiscountEndDateTime("");
+            datesHandler.handle(plu,articleDTO);
+            plus.add(plu);
+        }
+
+        List<PLU> newPLUs = updatePluList(filteredPlus,plus);
+        writeListPlu(newPLUs,String.valueOf(balId));
+    }
+
     private void writeListPlu(List<PLU> plus, String balId) throws FileNotFoundException {
+        if(plus.isEmpty()){
+            logger.warn("No hay PLUS nuevos para balanza -> {}", balId);
+            return;
+        }
         logger.debug("Ejecutando escritura de PLUs ({})",plus.size());
         String filename = String.format("%splu_%s.txt", directoryPendings, balId);
 
@@ -97,6 +128,19 @@ public class PluTransformationService {
             logger.error("Error durante la escritura de plu.txt para balanza -> {}",balId);
             throw new RuntimeException(e);
         }
+    }
+
+    private List<PLU> updatePluList(List<PLU> original, List<PLU> update){
+        Map<PLU,PLU> mapPlu = new HashMap<>();
+        for(PLU plu : original){
+            mapPlu.put(plu,plu);
+        }
+        for(PLU plu:update){
+            mapPlu.put(plu,plu);
+        }
+        original.clear();
+        original.addAll(mapPlu.values());
+        return original;
     }
 
 

@@ -28,7 +28,7 @@ public class ScaleDAO implements ScaleDAORepository {
 
     /**
      * Obtiene la lista de balanzas habilitadas desde la base de datos.
-     * Filtra por estado 0 y puerto 7000.
+     * Filtra por estado 0 y puerto 7001.
      *
      * @return Lista de objetos Scale
      */
@@ -54,10 +54,17 @@ public class ScaleDAO implements ScaleDAORepository {
                     .lastUpdate(Timestamp.valueOf(LocalDateTime.of(0,1,1,0,0,0)))
                     .build());
         } catch (Exception e) {
-            logger.error("Error obteniendo balanzas disponibles: {}", e.getMessage());
-            return Collections.emptyList();
+            throw new RuntimeException(e);
         }
     }
+
+    /**
+     * Actualiza los estados de las tablas segun el éxito o fracaso de la carga realizada.
+     *
+     * @param scale: Balanza a actualizar
+     * @param isSuccess: Fue o no cargada
+     * @param message: en caso de éxito: Tabla actualizada. en caso de error: Error registrado.
+     */
 
     @Override
     public void setUpdateLastupdateScale(Scale scale, boolean isSuccess, String message) {
@@ -76,6 +83,11 @@ public class ScaleDAO implements ScaleDAORepository {
             logger.error("Error actualizando zbalanzalastupdated en balanza {} : {}",scale.getBalId(), e.getMessage());
         }
     }
+
+    /**
+     * Desactiva la carga masiva de una balanza.
+     * @param scale: Balanza objetivo
+     */
 
     @Override
     public void disabledMassive(Scale scale) {

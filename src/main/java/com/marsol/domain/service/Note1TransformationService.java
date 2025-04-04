@@ -55,6 +55,10 @@ public class Note1TransformationService {
     }
 
     private void writeNote1(List<Note> notes, String balId){
+        if(notes.isEmpty()){
+            logger.info("No hay Nota1 nuevos para la balanza -> {}",balId);
+            return;
+        }
         logger.debug("Ejecutando escritura de Nota1 ({}) balanza: {}", notes.size(), balId);
         String filename = String.format("%snote1_%s.txt", directoryPendings, balId);
 

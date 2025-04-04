@@ -27,6 +27,11 @@ public class StoreDAO {
         this.namedParameterJdbcTemplate = namedParameterJdbcTemplate;
     }
 
+    /**
+     * private getStoreInfo()
+     * Extrae la direccion y nombre del local.
+     * @return
+     */
 
     private Note1DTO getStoreInfo() {
         String query = "SELECT FIRST 1 * FROM zmaetienda";
@@ -38,6 +43,15 @@ public class StoreDAO {
             return note1DTO;
         });
     }
+
+    /**
+     * public getAllStoresInfo()
+     *
+     * Utiliza la información extraida del local y además incluye: La resolucion sanitaria
+     * , el id del articulo y el tipo de embalaje de cada articulo habilitado.
+     * @param ids: Corresponde a la lista de articulos habilitados para la tienda.
+     * @return
+     */
 
     public List<Note1DTO> getAllStoresInfo(List<String> ids) {
         Note1DTO note1DTOTemplate = getStoreInfo();

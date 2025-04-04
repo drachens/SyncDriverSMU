@@ -1,0 +1,58 @@
+package com.marsol.infrastructure.integration;
+
+import com.marsol.domain.model.Scale;
+import com.marsol.infrastructure.adapter.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
+
+public class SyncDataDownloader {
+    private final SyncSDKIntf sync;
+    private static final Logger logger = LoggerFactory.getLogger(SyncDataDownloader.class);
+    public SyncDataDownloader() {
+        this.sync = SyncManager.getInstance();
+    }
+
+    //@Value("${directory.backup:C:\\Users\\sistemas\\Desktop\\MARSOL\\HPRT\\Balanza HPRT\\Proyecto SMU\\backup_test\\}")
+    private String backup = "C:\\Users\\sistemas\\Desktop\\MARSOL\\HPRT\\Balanza HPRT\\Proyecto SMU\\backup_test\\";
+
+    public boolean downloadPLU(Scale scale){
+        final boolean[] isSuccessful = {true};
+        long result;
+        String ipString = scale.getIp();
+        int ip = SyncSDKDefine.ipToLong(ipString);
+        TSDKOnProgressEvent onProgress = (var1, var2, var3, var4) -> {
+            //var1 : ErrorCode
+            //var2 : nIndex
+            //var3 : nTotal
+            //var4 : nUserDataCode
+            String errorMessage = ErrorTranslator.getErrorMessage(var1);
+            if(var1 != 0 && var1 != 1 && var1 != 2){
+                logger.error("[ERROR EN CARGA DE BALANZA] ErrorCode {}: {} en indice: {} de {} elementos.",var1,errorMessage,var2,var3);
+                isSuccessful[0] = false;
+            }
+            if(var1 == 0){
+                if(var3 == 0){
+                    logger.debug("Se intentó cargar un archivo vacio.");
+                    isSuccessful[0] = false;
+                }
+                logger.info("[CARGA DE BALANZA REALIZADA] Se han cargado todos los elementos ({}).",var3);
+            }
+            if(var1 == -1){
+                logger.error("[ERROR EN CARGA DE BALANZA] Se ha producido un error inesperado durante la carga de la balanaza IP: {}",ipString);
+                isSuccessful[0] = false;
+            }
+        };
+
+        try{
+            String filename = String.format("%splu_%s.txt",backup,scale.getBalId());
+            logger.info("Descargando información de PLU -> balanza {}",ipString);
+            result = sync.SDK_ExecTaskA(ip,1,0,filename,onProgress,111);
+            sync.SDK_WaitForTask(result);
+            return isSuccessful[0];
+        }catch(Exception e){
+            logger.error("Error al descargar PLU para balanza: {}, error: {}",ipString,e);
+            return false;
+        }
+    }
+}

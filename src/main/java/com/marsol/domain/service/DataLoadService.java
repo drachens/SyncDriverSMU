@@ -28,6 +28,9 @@ public class DataLoadService {
     public void loadPlu(Scale scale){
         String idBal = String.valueOf(scale.getBalId());
         String ip = scale.getIp();
+        if(!ip.isEmpty()){
+            scaleDAO.setUpdateLastupdateScale(scale,true,"ZBALANZA");
+        }
         String filename = String.format("%splu_%s.txt", pendings, idBal);
 
         boolean boolPlu = syncDataLoader.loadPLU(filename, ip);

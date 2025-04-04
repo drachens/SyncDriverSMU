@@ -1,7 +1,10 @@
 package com.marsol.domain.service;
 
 
+import com.marsol.domain.model.PLU;
 import com.marsol.domain.model.Scale;
+import com.marsol.domain.service.backup.BackupPLU;
+import com.marsol.infrastructure.integration.SyncDataDownloader;
 import com.marsol.infrastructure.integration.SyncDataLoader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -16,17 +19,19 @@ import java.util.*;
 public class DeleteDataService {
     private static final Logger logger = LoggerFactory.getLogger(DeleteDataService.class);
     private SyncDataLoader syncDataLoader;
-
-
+    private final SyncDataDownloader syncDataDownloader;
     private final DataExtractionService dataExtractionService;
 
     @Value("${directory.pendings}")
     private String pendings;
+    @Value("${directory.backup}")
+    private String backup;
 
     @Autowired
     public DeleteDataService(DataExtractionService dataExtractionService) {
         this.dataExtractionService = dataExtractionService;
         this.syncDataLoader = new SyncDataLoader();
+        this.syncDataDownloader = new SyncDataDownloader();
     }
 
     /**
@@ -37,15 +42,23 @@ public class DeleteDataService {
      */
 
 
-
+    /**
+     *
+     * @param scales
+     * @return Mapa con llave scaleID y value Cantidad de productos deshabilitados.
+     */
     public Map<String,Integer> getScalesToClean(List<Scale> scales){
         Map<String, List<Integer>> lfCodesByScale = new LinkedHashMap<>();
 
         for(Scale scale : scales){
+            if(!backUpFiles(scale)){
+                logger.error("No se pudieron obtener los PLU de balanza -> {}",scale.getBalId());
+                return Collections.emptyMap();
+            }
             String idBal = String.valueOf(scale.getBalId());
-            String filename = String.format("%splu_%s.txt",pendings,idBal);
+            String filename = String.format("%splu_%s.txt",backup,idBal);
 
-            List<Integer> lfCodes = extractFromFile(filename);
+            List<Integer> lfCodes = BackupPLU.extractLFCode(filename);
             lfCodesByScale.put(idBal,lfCodes);
         }
 
@@ -56,69 +69,74 @@ public class DeleteDataService {
     public void clearScale(String ip){
        try{
            syncDataLoader.clearPlu(ip);
-
        }catch(Exception e){
            logger.error(e.getMessage());
        }
     }
 
+    private boolean backUpFiles(Scale scale){
+        try{
+            return syncDataDownloader.downloadPLU(scale);
+        } catch (Exception e) {
+            logger.error("No se pudo descargar PLUS de balanza -> {}",scale.getBalId());
+            return false;
+        }
+    }
 
-
+    /**
+     *
+     * @param lfCodesByScale Mapa de balanzas que almacenan una lista de los LFCodes que tiene.
+     * @param disabledArticlesId Mapa de Balanzas con una lista de articulos deshabilitados que contiene.
+     * @return retorna un Mapa de balanzas con la cantidad de productos a eliminar.
+     *
+     */
     private Map<String,Integer> findMatchingScales(Map<String, List<Integer>> lfCodesByScale,
                                             Map<String, List<String>> disabledArticlesId){
+
         Map<String, Integer> matchingScales = new LinkedHashMap<>();
 
+        //Recorrer todas las balanzas con su lista de LFCodes.
         for(Map.Entry<String, List<Integer>> entry : lfCodesByScale.entrySet()){
             String scaleId = entry.getKey();
             List<Integer> lfCodes = entry.getValue();
             int countArticles = lfCodes.size();
+            int count = 0;
             //Verificar si hay al menos 1 match
-            if(disabledArticlesId.containsKey(scaleId)){
+            if(disabledArticlesId.containsKey(scaleId)){ //Si existen articulos deshabilitados para esa balanza entonces,
                 List<String> disabledArticles = disabledArticlesId.get(scaleId);
                 for(Integer lfcode : lfCodes){
-                    if(disabledArticles.contains(lfcode)){
-                        matchingScales.put(scaleId,countArticles);
-                        break;
+                    if(disabledArticles.contains(String.valueOf(lfcode))){
+                        count++;
+                        //matchingScales.put(scaleId,countArticles);
+                        //break;
                     }
+                }
+                if(count>0){ //Si hay al menos 1 producto deshabilitado en la balanza
+                    matchingScales.put(scaleId,count);
                 }
             }
         }
         return matchingScales;
     }
 
-    private List<Integer> extractFromFile(String filename){
-
-        List<Integer> result = new ArrayList<>();
-        try(BufferedReader br = new BufferedReader(new FileReader(filename))){
-            String line;
-            boolean firstLine = true; //Omitir cabecera
-
-            while((line = br.readLine()) != null){
-                if(firstLine){
-                    firstLine = false;
-                    continue;
-                }
-                String[] values = line.split("\t");
-                if(values.length > 0){
-                    try{
-                        int lfCode = Integer.parseInt(values[0]);
-                        result.add(lfCode);
-                    }catch(NumberFormatException e){
-                        logger.error("Error durante lectura de ultimos PLU cargados. {}",e.getMessage());
-                    }
-                }
-            }
-        } catch (FileNotFoundException e) {
-            throw new RuntimeException(e);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-
-        return result;
-    }
-
     private Map<String,List<String>> getDisabledArticles(List<Scale> scales){
         return dataExtractionService.getDisabledArticles(scales);
 
+    }
+
+    public List<PLU> getActualPLU(Scale scale){
+        int idbal = scale.getBalId();
+        String filename = String.format("%splu_%s.txt",backup,idbal);
+        return BackupPLU.extractPLUs(filename);
+    }
+
+    public void processDeletePLUS(Scale scale){
+
+
+
+
+        /**
+         * Obtener la lista de PLUS a eliminar
+         */
     }
 }

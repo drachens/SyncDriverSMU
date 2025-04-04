@@ -2,6 +2,7 @@ package com.marsol.application.controller;
 
 import com.marsol.domain.service.*;
 import com.marsol.domain.model.Scale;
+import com.marsol.domain.service.DeleteDataService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,7 +12,6 @@ import org.springframework.stereotype.Component;
 import java.io.FileNotFoundException;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 @Component
 public class ServiceController implements CommandLineRunner {
@@ -44,10 +44,11 @@ public class ServiceController implements CommandLineRunner {
     public void load() throws FileNotFoundException {
 
         //Consultar balanzas habilitadas
+        logger.info("Consultando balanzas habilitadas...");
         List<Scale> scales = dataExtractionService.getEnabledScales();
 
         if(scales.isEmpty()){
-            logger.error("Existen {} balanzas habilitadas.",scales.size());
+            logger.error("No hay balanzas habilitadas.");
             return;
         }
 
@@ -59,7 +60,7 @@ public class ServiceController implements CommandLineRunner {
          * @Integer = Cantidad de productos a eliminar.
          */
         Map<String,Integer> scalesToClear = deleteDataService.getScalesToClean(scales);
-
+        logger.info("SAS {}",scalesToClear);
         for(Scale scale : scales){
             String balid = String.valueOf(scale.getBalId());
             logger.info("Procesando balanza {}",balid);
@@ -82,27 +83,29 @@ public class ServiceController implements CommandLineRunner {
             try{
                 //Revisar las balanzas que eliminar
                 if(scalesToClear.containsKey(balid)){
-                    logger.info("Total de PLUs a eliminar para balanza {} : {}",balid,scalesToClear.get(balid));
+                    logger.info("Total de PLUs a eliminar para balanza -> {} : {}",balid,scalesToClear.get(balid));
                     String ip = scale.getIp();
                     try{
                         //Eliminar
                         deleteDataService.clearScale(ip);
+                        logger.info("PLUs eliminados para balanza -> {}",balid);
                     } catch (Exception e) {
-                        logger.error("Error durante el borrado de balanza {}",balid);
+                        logger.error("Error durante el borrado de balanza -> {}",balid);
                     }
                 }
 
-                logger.warn("Empezando transformacion...");
                 //Transformacion
+                logger.warn("Empezando transformacion de PLUS para balanza -> {}", balid);
                 pluTransformationService.transformDataPlu(scale);
-                logger.warn("Empezando transformacion de notas...");
+                logger.warn("Empezando transformacion de notas para balanza -> {}",scale.getBalId());
                 note1TransformationService.transformData(scale);
 
-                logger.warn("Empezando carga...");
                 //Cargar Datos
+                logger.warn("Empezando carga de PLU para balanza -> {}",balid);
                 dataLoadService.loadPlu(scale);
+                logger.warn("Empezando carga de Nota1 para balanza -> {}",balid);
                 dataLoadService.loadNote1(scale);
-                logger.info("Carga realizada para balanza -> {}",balid);
+                //logger.info("Carga realizada para balanza -> {}",balid);
             }catch (Exception e){
                 logger.error("Error durante la carga de la balanza -> {}",balid);
             }

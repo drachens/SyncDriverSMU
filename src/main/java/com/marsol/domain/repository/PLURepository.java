@@ -14,4 +14,5 @@ public interface PLURepository {
     public Map<String,List<String>> getDisabledArticles(List<Scale> scales);
     public List<String> getEnabledArticles(Scale scale);
     public List<ArticleDTO> getListArticles(List<String> ids);
+    public List<String> getDisabledArticles2(Scale scale);
 }
