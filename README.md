@@ -52,11 +52,12 @@
 ## Uso
 - La ejecución principal se encuentra en `ServiceController`, el cual puede ser ejecutado como servicio o CLI.
 - El sistema realiza las siguientes operaciones:
-  1. Consulta de balanzas habilitadas.
-  2. Determinación de artículos eliminados por balanza.
-  3. Eliminación y carga condicional de datos (PLU y Nota1).
-  4. Generación de archivos `plu_{balId}.txt` y `note1_{balId}.txt` para ser enviados a las balanzas.
-  5. Actualización de estado de carga por balanza.
+  - Consulta de balanzas habilitadas.
+  - Determinación de artículos a eliminar.
+  - Determinación de artículos a actualizar.
+  - Generación de archivos `plu_{balId}.txt` y `note1_{balId}.txt` para ser enviados a las balanzas.
+  - Eliminación y carga condicional de datos (PLU y Nota1).
+  - Actualización de estado de carga por balanza.
 
 ## Tecnologías Utilizadas
 
