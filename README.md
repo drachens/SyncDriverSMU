@@ -9,8 +9,8 @@
 - [Instalación](#instalación)
 - [Uso](#uso)
 - [Tecnologías Utilizadas](#tecnologías-utilizadas)
+- [Bibliotecas y Dependencias](#bibliotecas-y-dependencias)
 - [Características](#características)
-- [Contribuciones](#contribuciones)
 - [Licencia](#licencia)
 - [Contacto](#contacto)
 
