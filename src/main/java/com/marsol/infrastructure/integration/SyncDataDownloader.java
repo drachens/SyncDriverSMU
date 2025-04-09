@@ -4,19 +4,30 @@ import com.marsol.domain.model.Scale;
 import com.marsol.infrastructure.adapter.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 
+@Service
 public class SyncDataDownloader {
+
+    @Value("${directory_backup}")
+    private String backup;
+
     private final SyncSDKIntf sync;
     private static final Logger logger = LoggerFactory.getLogger(SyncDataDownloader.class);
+
+
     public SyncDataDownloader() {
         this.sync = SyncManager.getInstance();
+        this.backup = "C:\\Users\\sistemas\\Desktop\\MARSOL\\HPRT\\Balanza HPRT\\Proyecto SMU\\backup_test\\";
     }
 
-    //@Value("${directory.backup:C:\\Users\\sistemas\\Desktop\\MARSOL\\HPRT\\Balanza HPRT\\Proyecto SMU\\backup_test\\}")
-    private String backup = "C:\\Users\\sistemas\\Desktop\\MARSOL\\HPRT\\Balanza HPRT\\Proyecto SMU\\backup_test\\";
 
     public boolean downloadPLU(Scale scale){
+        logger.error("Directory backup: {}",backup);
         final boolean[] isSuccessful = {true};
         long result;
         String ipString = scale.getIp();
@@ -108,7 +119,7 @@ public class SyncDataDownloader {
         };
 
         try{
-            String filename = String.format("%splu_%s.txt",backup,scale.getBalId());
+            String filename = String.format("%snote%s_%s.txt",backup,noteType,scale.getBalId());
             logger.info("Descargando información de Nota{} -> balanza {}",noteType,ipString);
             result = sync.SDK_ExecTaskA(ip,1,noteOperationType,filename,onProgress,111);
             sync.SDK_WaitForTask(result);

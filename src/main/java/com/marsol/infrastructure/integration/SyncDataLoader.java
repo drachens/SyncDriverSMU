@@ -30,7 +30,7 @@ public class SyncDataLoader {
                     logger.debug("Se intentó cargar un archivo vacio.");
                     isSuccessful[0] = false;
                 }
-                logger.info("[CARGA DE BALANZA REALIZADA] Se han cargado todos los elementos ({}).",var3);
+                logger.info("[CARGA DE BALANZA REALIZADA] Se han cargado todos los PLU ({}).",var3);
             }
             if(var1 == -1){
                 logger.error("[ERROR EN CARGA DE BALANZA] Se ha producido un error inesperado durante la carga de la balanaza IP: {}",ipString);
@@ -73,7 +73,7 @@ public class SyncDataLoader {
                     logger.debug("Se intento cargar un archivo de notas vacio.");
                     isSuccessful[0] = false;
                 }
-                logger.info("[CARGA DE BALANZA REALIZADA] Se han cargado todos los elementos ({}).",var3);
+                logger.info("[CARGA DE BALANZA REALIZADA] Se han cargado todos las Notas ({}).",var3);
             }
             if(var1 == -1){
                 logger.error("[ERROR EN CARGA DE BALANZA] Se ha producido un error inesperado durante la carga de la balanaza IP: {}",ipString);
@@ -224,7 +224,7 @@ public class SyncDataLoader {
                 logger.error("[ERROR EN CARGA DE BALANZA] ErrorCode {}: {} en indice: {} de {} elementos.",var1,errorMessage,var2,var3);
             }
             if(var1 == 0){
-                logger.warn("[CARGA DE BALANZA REALIZADA] Se han cargado todos los elementos ({}).",var3);
+                logger.warn("[BORRADO DE BALANZA REALIZADO] Se han eliminado todos los PLU ({}).",var3);
             }
             if(var1 == -1){
                 logger.error("[ERROR EN CARGA DE BALANZA] Se ha producido un error inesperado durante la carga de la balanaza IP: {}",ipString);
@@ -232,6 +232,29 @@ public class SyncDataLoader {
         };
         try{
             result = sync.SDK_ExecTaskA(ip,2,0,ipString,onProgress,111);
+            sync.SDK_WaitForTask(result);
+
+        }catch(Exception e){
+
+        }
+    }
+    public void clearNote1(String ipString){
+        long result;
+        int ip = SyncSDKDefine.ipToLong(ipString);
+        TSDKOnProgressEvent onProgress = (var1, var2, var3, var4) -> {
+            String errorMessage = ErrorTranslator.getErrorMessage(var1);
+            if(var1 != 0 && var1 != 1 && var1 != 2){
+                logger.error("[ERROR EN CARGA DE BALANZA] ErrorCode {}: {} en indice: {} de {} elementos.",var1,errorMessage,var2,var3);
+            }
+            if(var1 == 0){
+                logger.warn("[BORRADO DE BALANZA REALIZADO] Se han eliminado todos las Nota1 ({}).",var3);
+            }
+            if(var1 == -1){
+                logger.error("[ERROR EN CARGA DE BALANZA] Se ha producido un error inesperado durante la carga de la balanaza IP: {}",ipString);
+            }
+        };
+        try{
+            result = sync.SDK_ExecTaskA(ip,2,5,ipString,onProgress,111);
             sync.SDK_WaitForTask(result);
 
         }catch(Exception e){

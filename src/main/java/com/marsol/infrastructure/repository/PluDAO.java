@@ -132,6 +132,7 @@ public class PluDAO implements PLURepository {
         try {
             disabledArticles = namedParameterJdbcTemplate.query(query, parameters,
                     (rs, rowNum) -> rs.getString("id"));
+            logger.info("Existe(n) {} producto(s) deshabilitado(s) para la balanza {}",disabledArticles.size(),balId);
         } catch (Exception e) {
             logger.error("Error al obtener lista de articulos deshabilitados para balanza {}: {}", balId, e.getMessage());
             return Collections.emptyList();
@@ -157,7 +158,9 @@ public class PluDAO implements PLURepository {
                 "AND zmb.estado = 0 AND zm.brand = 'FRUTAS Y VERDURAS')";
         MapSqlParameterSource parameters = new MapSqlParameterSource("balid", balid);
         try{
-            return namedParameterJdbcTemplate.query(query, parameters, (rs, rowNum) -> rs.getString("id"));
+            List<String> enabledArticlesList = namedParameterJdbcTemplate.query(query, parameters, (rs, rowNum) -> rs.getString("id"));
+            logger.info("Existe(n) {} producto(s) habilitado(s) para carga masiva de balanza -> {}",enabledArticlesList.size(),balid);
+            return enabledArticlesList;
         }catch (Exception e){
             logger.error("error");
         }

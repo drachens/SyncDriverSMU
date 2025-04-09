@@ -15,10 +15,7 @@ import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Service
 public class PluTransformationService {
@@ -81,28 +78,41 @@ public class PluTransformationService {
     }
 
     public void reloadAndFilterDataPlu(List<PLU> filteredPlus, List<ArticleDTO> updateArticles, String balId) throws FileNotFoundException {
+        logger.debug("Iniciando Reload And Filter Data PLU");
+        logger.debug("filteredPlus:{}, updateArticles:{}", filteredPlus.size(), updateArticles.size());
         BaseHandler wheightUnitHandler = initializeHandlerChain();
         BaseHandler datesHandler = initializeDatesHandlerChain();
-        List<PLU> plus = new ArrayList<>();
-        for (ArticleDTO articleDTO : updateArticles) {
-            PLU plu = new PLU();
-            plu.setLFCode(Integer.parseInt(articleDTO.getId()));
-            plu.setName1(articleDTO.getDescription());
-            plu.setName2(articleDTO.getBrand());
-            plu.setName3(articleDTO.getAdditionalDescription());
-            plu.setProducedDateTime(LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd-MM-yy HH:mm:ss")));
-            plu.setUnitPrice(articleDTO.getPrice());
-            plu.setDepartment(1);
-            plu.setLabel1(32);
-            plu.setValidDays(articleDTO.getDuracion());
-            //plu.setTareWeight((int) articleDTO.getTara());
-            wheightUnitHandler.handle(plu,articleDTO);
-            plu.setDiscountStartDateTime("");
-            plu.setDiscountEndDateTime("");
-            datesHandler.handle(plu,articleDTO);
-            plus.add(plu);
+        List<PLU> plus = new ArrayList<PLU>();
+        if(!updateArticles.isEmpty()){
+            try{
+                for (ArticleDTO articleDTO : updateArticles) {
+                    PLU plu = new PLU();
+                    plu.setLFCode(Integer.parseInt(articleDTO.getId()));
+                    plu.setName1(articleDTO.getDescription());
+                    plu.setName2(articleDTO.getBrand());
+                    plu.setName3(articleDTO.getAdditionalDescription());
+                    plu.setProducedDateTime(LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd-MM-yy HH:mm:ss")));
+                    plu.setUnitPrice(articleDTO.getPrice());
+                    plu.setDepartment(1);
+                    plu.setLabel1(32);
+                    plu.setValidDays(articleDTO.getDuracion());
+                    //plu.setTareWeight((int) articleDTO.getTara());
+                    wheightUnitHandler.handle(plu,articleDTO);
+                    plu.setDiscountStartDateTime(null);
+                    plu.setDiscountEndDateTime(null);
+                    datesHandler.handle(plu,articleDTO);
+                    plus.add(plu);
+                }
+                logger.debug("plus:{}",plus.size());
+            } catch (Exception e) {
+                logger.error(e.getMessage());
+            }
+        }else{
+            logger.debug("Articles vacio.");
+            plus = Collections.emptyList();
         }
-
+        logger.debug("filteredPlu:{}",filteredPlus);
+        logger.debug("updateArticles:{}",plus);
         List<PLU> newPLUs = updatePluList(filteredPlus,plus);
         writeListPlu(newPLUs,String.valueOf(balId));
     }
@@ -131,16 +141,28 @@ public class PluTransformationService {
     }
 
     private List<PLU> updatePluList(List<PLU> original, List<PLU> update){
-        Map<Integer,PLU> mapPlu = new HashMap<>();
-        for(PLU plu : original){
-            mapPlu.put(plu.getLFCode(),plu);
+        if(update.isEmpty()){
+            return original;
         }
-        for(PLU plu:update){
-            mapPlu.put(plu.getLFCode(),plu);
+        try{
+            Map<Integer,PLU> mapPlu = new HashMap<>();
+            logger.debug("Agregando a mapPlu lista original de PLUs.");
+            for(PLU plu : original){
+                mapPlu.put(plu.getLFCode(),plu);
+            }
+            logger.debug("mapPlu.size:{}",mapPlu.size());
+            logger.debug("Agregando a mapPlu lista update de PLUs.");
+            for(PLU plu:update){
+                mapPlu.put(plu.getLFCode(),plu);
+            }
+            logger.debug("mapPlu.size:{}",mapPlu.size());
+            List<PLU> newPLUs = new ArrayList<>(mapPlu.values());
+            logger.debug("original: {}", newPLUs.size());
+            return newPLUs;
+        }catch(Exception e){
+            logger.error("Error al combinar listas original y update de plus. {}",e.getMessage());
+            throw new RuntimeException(e);
         }
-        original.clear();
-        original.addAll(mapPlu.values());
-        return original;
     }
 
 

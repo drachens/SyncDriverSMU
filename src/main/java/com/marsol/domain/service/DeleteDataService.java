@@ -1,8 +1,10 @@
 package com.marsol.domain.service;
 
 
+import com.marsol.domain.model.Note;
 import com.marsol.domain.model.PLU;
 import com.marsol.domain.model.Scale;
+import com.marsol.domain.service.backup.BackupNote1;
 import com.marsol.domain.service.backup.BackupPLU;
 import com.marsol.infrastructure.integration.SyncDataDownloader;
 import com.marsol.infrastructure.integration.SyncDataLoader;
@@ -24,7 +26,7 @@ public class DeleteDataService {
 
     @Value("${directory.pendings}")
     private String pendings;
-    @Value("${directory.backup}")
+    @Value("${directory_backup}")
     private String backup;
 
     @Autowired
@@ -69,6 +71,7 @@ public class DeleteDataService {
     public void clearScale(String ip){
        try{
            syncDataLoader.clearPlu(ip);
+           syncDataLoader.clearNote1(ip);
        }catch(Exception e){
            logger.error(e.getMessage());
        }
@@ -125,9 +128,24 @@ public class DeleteDataService {
     }
 
     public List<PLU> getActualPLU(Scale scale){
+        try{
+            syncDataDownloader.downloadPLU(scale);
+        }catch(Exception e){
+            logger.error(e.getMessage());
+        }
         int idbal = scale.getBalId();
         String filename = String.format("%splu_%s.txt",backup,idbal);
         return BackupPLU.extractPLUs(filename);
+    }
+    public List<Note> getActualNote1(Scale scale){
+        try {
+            syncDataDownloader.downloadNotes(scale,1);
+        }catch(Exception e){
+            logger.error(e.getMessage());
+        }
+        int idbal = scale.getBalId();
+        String filename = String.format("%snote1_%s.txt",backup,idbal);
+        return BackupNote1.extractNotes(filename);
     }
 
     public void processDeletePLUS(Scale scale){

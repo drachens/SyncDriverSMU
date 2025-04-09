@@ -9,6 +9,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Service;
 
+import java.sql.Time;
+import java.sql.Timestamp;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -27,7 +31,11 @@ public class ServiceController2 implements CommandLineRunner {
 
     @Override
     public void run(String... args) throws Exception {
+        Time begin = Time.valueOf(LocalTime.now());
         load();
+        Time end = Time.valueOf(LocalTime.now());
+        long total = end.getTime()-begin.getTime();
+        logger.info("Tiempo de ejecicion: {}s", total/1000);
     }
 
     public void load(){

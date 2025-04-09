@@ -12,10 +12,7 @@ import org.springframework.stereotype.Service;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Service
 public class Note1TransformationService {
@@ -57,17 +54,31 @@ public class Note1TransformationService {
     }
 
     public void reloadAndFilterNote1(List<Note> filteredNotes, List<Note1DTO> updateNotes1, String balId){
+        logger.debug("Iniciando Reload And Filter Note1");
+        logger.debug("filteredNotes:{}, updateNotes:{}",filteredNotes.size(),updateNotes1.size());
         List<Note> notes = new ArrayList<>();
-        for(Note1DTO note1DTO : updateNotes1){
-            String textoEmbasadoPor = String.join(" ", note1DTO.getEmbalaje().trim(), note1DTO.getNombre().trim());
-            String value = String.join("{$0A}", textoEmbasadoPor, note1DTO.getDireccion().trim(), note1DTO.getResSanitaria().trim());
-            int lfCode = note1DTO.getIdArticle();
+        if(!updateNotes1.isEmpty()){
+            try{
+                for(Note1DTO note1DTO : updateNotes1){
+                    String textoEmbasadoPor = String.join(" ", note1DTO.getEmbalaje().trim(), note1DTO.getNombre().trim());
+                    String value = String.join("{$0A}", textoEmbasadoPor, note1DTO.getDireccion().trim(), note1DTO.getResSanitaria().trim());
+                    int lfCode = note1DTO.getIdArticle();
 
-            Note note = new Note();
-            note.setLFCode(lfCode);
-            note.setValue(value);
-            notes.add(note);
+                    Note note = new Note();
+                    note.setLFCode(lfCode);
+                    note.setValue(value);
+                    notes.add(note);
+                }
+                logger.debug("notes1:{}",notes.size());
+            }catch(Exception e){
+                logger.error(e.getMessage());
+            }
+        }else{
+            logger.debug("Note1DTO vacio.");
+            notes = Collections.emptyList();
         }
+        logger.debug("filteredNotes:{}",filteredNotes);
+        logger.debug("updateNotes:{}",updateNotes1);
         List<Note> newNotes = updateNote1List(filteredNotes,notes);
         writeNote1(newNotes,balId);
     }
@@ -95,17 +106,25 @@ public class Note1TransformationService {
     }
 
     private List<Note> updateNote1List(List<Note> original, List<Note> update){
-        Map<Integer, Note> mapNotes = new HashMap<>();
+        if(update.isEmpty()){
+            return original;
+        }
+        try{
+            Map<Integer, Note> mapNotes = new HashMap<>();
+            for(Note note : original){
+                mapNotes.put(note.getLFCode(),note);
+            }
+            for(Note note2 : update){
+                mapNotes.put(note2.getLFCode(),note2);
+            }
+            List<Note> newNote = new ArrayList<>(mapNotes.values());
+            logger.debug("newNote.size:{}",newNote.size());
+            return newNote;
+        }catch(Exception e){
+            logger.error("Error al combinar listas original y update de Notes1. {}",e.getMessage());
+            throw new RuntimeException(e);
+        }
 
-        for(Note note : original){
-            mapNotes.put(note.getLFCode(),note);
-        }
-        for(Note note2 : update){
-            mapNotes.put(note2.getLFCode(),note2);
-        }
-        original.clear();
-        original.addAll(mapNotes.values());
-        return original;
     }
 
 }

@@ -36,6 +36,9 @@ public class DatabaseConfig {
     @Value("${SID}")
     private String sid;
 
+    @Value("${directory_backup}")
+    private String backup;
+
     /**
      * Configura el DataSource para la conexión a Informix usando HikariCP.
      * @return DataSource configurado.
@@ -52,6 +55,9 @@ public class DatabaseConfig {
         dataSource.setDriverClassName("com.informix.jdbc.IfxDriver");
 
         logger.info("Conectando a base de datos Informix, usando pool de HikariCP.");
+        logger.info("backup directory: {}", backup);
+
+
         return dataSource;
     }
 

@@ -14,7 +14,7 @@ import java.util.List;
 import java.util.Map;
 
 @Component
-public class ServiceController implements CommandLineRunner {
+public class ServiceController {
     private final DataExtractionService dataExtractionService;
     private final DeleteDataService deleteDataService;
     private final DataLoadService dataLoadService;
@@ -36,9 +36,8 @@ public class ServiceController implements CommandLineRunner {
         this.note1TransformationService = note1TransformationService;
     }
 
-    @Override
     public void run(String... args) throws Exception {
-        load();
+        //load();
     }
 
     public void load() throws FileNotFoundException {

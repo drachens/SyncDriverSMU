@@ -12,6 +12,9 @@ public class DeletePluService {
     @Value("${directory.pendings}")
     private String directoryPendings;
 
+    @Value("${directory_backup}")
+    private String directoryBackup;
+
     private final SyncDataDownloader syncDataDownloader;
     private final PluDAO pluDAO;
     private final PluTransformationService pluTransformationService;

@@ -121,6 +121,12 @@ public class PluTransformationServiceTest {
         List<PLU> filteredPlus = new ArrayList<>();
         filteredPlus.add(existingPlu);
 
+        PLU existingPlu2 = new PLU();
+        existingPlu2.setLFCode(1003);
+        existingPlu2.setItemCode("3123412");
+        existingPlu2.setName1("sas");
+        filteredPlus.add(existingPlu2);
+
         //Articulo Actualizado
         ArticleDTO updateArticle = ArticleDTO.builder()
                 .id("1002")
@@ -133,6 +139,9 @@ public class PluTransformationServiceTest {
         File outputFile = new File(TEMP_DIR + "plu_" + BAL_ID + ".txt");
         assertThat(outputFile).exists();
         List<String> lines = Files.readAllLines(outputFile.toPath());
-        assertThat(lines).hasSize(2);
+        assertThat(lines).hasSize(3);
+        assertThat(lines.get(1)).contains("Pera Cian");
+        assertThat(lines.get(1)).contains("1002");
+        assertThat(lines.get(1)).contains("499");
     }
 }
